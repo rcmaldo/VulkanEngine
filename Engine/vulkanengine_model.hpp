@@ -16,9 +16,10 @@ namespace vulkanengine
 	{
 	public:
 
+		// Make sure to change attribute descriptions when making changes to this struct!
 		struct Vertex
 		{
-			glm::vec2 position;
+			glm::vec3 position;
 			glm::vec3 color;
 
 			static std::vector<VkVertexInputBindingDescription> GetBindingDescriptions();

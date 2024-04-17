@@ -16,8 +16,7 @@ namespace vulkanengine
 
 	struct SimplePushConstantData
 	{
-		glm::mat2 transform{1.f};
-		glm::vec2 offset;
+		glm::mat4 transform{1.f};
 		alignas(16) glm::vec3 color;
 	};
 
@@ -74,12 +73,12 @@ namespace vulkanengine
 
 		for (auto& obj : game_objects)
 		{
-			obj.transform_2d_.rotation = glm::mod(obj.transform_2d_.rotation + 0.01f, glm::two_pi<float>());
+			obj.transform_.rotation.y = glm::mod(obj.transform_.rotation.y + 0.0001f, glm::two_pi<float>());
+			obj.transform_.rotation.x = glm::mod(obj.transform_.rotation.x + 0.00005f, glm::two_pi<float>());
 
 			SimplePushConstantData push{};
-			push.offset = obj.transform_2d_.translation;
 			push.color = obj.color_;
-			push.transform = obj.transform_2d_.mat2();
+			push.transform = obj.transform_.mat4();
 
 
 			vkCmdPushConstants(

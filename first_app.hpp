@@ -28,8 +28,6 @@ namespace vulkanengine
 	private:
 		void LoadGameObjects();
 
-		void GetSierpinskiTriangle(int num_recursions, std::vector<VulkanEngineModel::Vertex>& vertices);
-
 		VulkanEngineWindow vulkanengine_window_{ kWidth, kHeight, "Hello Vulkan!" };
 		VulkanEngineDevice vulkanengine_device_{ vulkanengine_window_ };
 		VulkanEngineRenderer vulkanengine_renderer_{ vulkanengine_window_, vulkanengine_device_ };

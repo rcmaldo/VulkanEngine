@@ -41,62 +41,76 @@ namespace vulkanengine
 		vkDeviceWaitIdle(vulkanengine_device_.Device());
 	}
 
-	void FirstApp::LoadGameObjects()
+	// temporary helper function, creates a 1x1x1 cube centered at offset
+	std::unique_ptr<VulkanEngineModel> CreateCubeModel(VulkanEngineDevice& device, glm::vec3 offset)
 	{
-		std::vector<VulkanEngineModel::Vertex> vertices {
-			{ {0.0f, -0.5f}, { 1.0f, 0.0f, 0.0f } },
-			{ {0.5f, 0.5f}, {0.0f, 1.0f, 0.0f} },
-			{ {-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f} }
+		std::vector<VulkanEngineModel::Vertex> vertices{
+
+			// left face (white)
+			{{-.5f, -.5f, -.5f}, { .9f, .9f, .9f }},
+			{ {-.5f, .5f, .5f}, {.9f, .9f, .9f} },
+			{ {-.5f, -.5f, .5f}, {.9f, .9f, .9f} },
+			{ {-.5f, -.5f, -.5f}, {.9f, .9f, .9f} },
+			{ {-.5f, .5f, -.5f}, {.9f, .9f, .9f} },
+			{ {-.5f, .5f, .5f}, {.9f, .9f, .9f} },
+
+				// right face (yellow)
+			{ {.5f, -.5f, -.5f}, {.8f, .8f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .8f, .1f} },
+			{ {.5f, -.5f, .5f}, {.8f, .8f, .1f} },
+			{ {.5f, -.5f, -.5f}, {.8f, .8f, .1f} },
+			{ {.5f, .5f, -.5f}, {.8f, .8f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .8f, .1f} },
+
+				// top face (orange, remember y axis points down)
+			{ {-.5f, -.5f, -.5f}, {.9f, .6f, .1f} },
+			{ {.5f, -.5f, .5f}, {.9f, .6f, .1f} },
+			{ {-.5f, -.5f, .5f}, {.9f, .6f, .1f} },
+			{ {-.5f, -.5f, -.5f}, {.9f, .6f, .1f} },
+			{ {.5f, -.5f, -.5f}, {.9f, .6f, .1f} },
+			{ {.5f, -.5f, .5f}, {.9f, .6f, .1f} },
+
+				// bottom face (red)
+			{ {-.5f, .5f, -.5f}, {.8f, .1f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .1f, .1f} },
+			{ {-.5f, .5f, .5f}, {.8f, .1f, .1f} },
+			{ {-.5f, .5f, -.5f}, {.8f, .1f, .1f} },
+			{ {.5f, .5f, -.5f}, {.8f, .1f, .1f} },
+			{ {.5f, .5f, .5f}, {.8f, .1f, .1f} },
+
+				// nose face (blue)
+			{ {-.5f, -.5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {.5f, .5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {-.5f, .5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {-.5f, -.5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {.5f, -.5f, 0.5f}, {.1f, .1f, .8f} },
+			{ {.5f, .5f, 0.5f}, {.1f, .1f, .8f} },
+
+				// tail face (green)
+			{ {-.5f, -.5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {.5f, .5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {-.5f, .5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {-.5f, -.5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {.5f, -.5f, -0.5f}, {.1f, .8f, .1f} },
+			{ {.5f, .5f, -0.5f}, {.1f, .8f, .1f} },
+
 		};
-
-		// GetSierpinskiTriangle(5, vertices);
-
-		auto vulkanengine_model_ = std::make_shared<VulkanEngineModel>(vulkanengine_device_, vertices);
-
-		auto triangle = VulkanEngineGameObject::CreateGameObject();
-		triangle.model_ = vulkanengine_model_;
-		triangle.color_ = { .1f, .8f, .1f };
-		triangle.transform_2d_.translation.x = .2f;
-		triangle.transform_2d_.scale = { 2.f, .5f };
-		triangle.transform_2d_.rotation = .25f * glm::two_pi<float>();
-
-		game_objects_.push_back(std::move(triangle));
+		for (auto& v : vertices)
+		{
+			v.position += offset;
+		}
+		return std::make_unique<VulkanEngineModel>(device, vertices);
 	}
 
-	void FirstApp::GetSierpinskiTriangle(int num_recursions, std::vector<VulkanEngineModel::Vertex>& vertices)
+	void FirstApp::LoadGameObjects()
 	{
-		if (num_recursions == 0)
-		{
-			return;
-		}
+		std::shared_ptr<VulkanEngineModel> vulkanengine_model = CreateCubeModel(vulkanengine_device_, { 0.f, 0.f, 0.f });
 
-		std::vector<VulkanEngineModel::Vertex> triangle0 = {
-			vertices[0],
-			{{(vertices[0].position.x + vertices[1].position.x) / 2.0f , (vertices[0].position.y + vertices[1].position.y) / 2.0f}},
-			{{(vertices[0].position.x + vertices[2].position.x) / 2.0f , (vertices[0].position.y + vertices[2].position.y) / 2.0f}}
-		};
-
-		std::vector<VulkanEngineModel::Vertex> triangle1 = {
-			{{(vertices[0].position.x + vertices[1].position.x) / 2.0f , (vertices[0].position.y + vertices[1].position.y) / 2.0f}},
-			vertices[1],
-			{{(vertices[1].position.x + vertices[2].position.x) / 2.0f , (vertices[1].position.y + vertices[2].position.y) / 2.0f}}
-		};
-
-		std::vector<VulkanEngineModel::Vertex> triangle2 = {
-			{{(vertices[0].position.x + vertices[2].position.x) / 2.0f , (vertices[0].position.y + vertices[2].position.y) / 2.0f}},
-			{{(vertices[1].position.x + vertices[2].position.x) / 2.0f , (vertices[1].position.y + vertices[2].position.y) / 2.0f}},
-			vertices[2]
-		};
-
-		GetSierpinskiTriangle(num_recursions - 1, triangle0);
-		GetSierpinskiTriangle(num_recursions - 1, triangle1);
-		GetSierpinskiTriangle(num_recursions - 1, triangle2);
-
-		vertices.clear();
-		vertices.reserve(triangle0.size() + triangle1.size() + triangle2.size());
-		vertices.insert(vertices.end(), triangle0.begin(), triangle0.end());
-		vertices.insert(vertices.end(), triangle1.begin(), triangle1.end());
-		vertices.insert(vertices.end(), triangle2.begin(), triangle2.end());
+		auto cube = VulkanEngineGameObject::CreateGameObject();
+		cube.model_ = vulkanengine_model;
+		cube.transform_.translation = { 0.f, 0.f, .5f };
+		cube.transform_.scale = { .5f, .5f, .5f };
+		game_objects_.push_back(std::move(cube));
 	}
 
 }  // namespace vulkanengine

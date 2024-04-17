@@ -1,11 +1,2 @@
-﻿  vulkanengine_device.cpp
-  vulkanengine_model.cpp
-  vulkanengine_pipeline.cpp
-  vulkanengine_renderer.cpp
-  vulkanengine_swap_chain.cpp
-  vulkanengine_window.cpp
-  first_app.cpp
-  main.cpp
-  simple_render_system.cpp
-  Generating Code...
+﻿  simple_render_system.cpp
   VulkanEngine.vcxproj -> C:\Dev\Projects\CppProjects\VulkanEngine\x64\Debug\VulkanEngine.exe
