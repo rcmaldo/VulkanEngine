@@ -1,0 +1,9 @@
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\first_app.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\first_app.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\main.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\main.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\simple_render_system.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\simple_render_system.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\vulkanengine_device.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\vulkanengine_device.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\vulkanengine_model.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\vulkanengine_model.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\vulkanengine_pipeline.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\vulkanengine_pipeline.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\vulkanengine_renderer.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\vulkanengine_renderer.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\vulkanengine_swap_chain.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\vulkanengine_swap_chain.obj
+C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\vulkanengine_window.cpp;C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine\x64\Debug\vulkanengine_window.obj
