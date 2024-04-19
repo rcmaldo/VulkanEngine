@@ -21,6 +21,7 @@ namespace vulkanengine
 		VulkanEngineRenderer& operator=(const VulkanEngineRenderer&) = delete;
 
 		VkRenderPass GetSwapChainRenderPass() const { return vulkanengine_swap_chain_->GetRenderPass(); }
+		float GetAspectRatio() const { return vulkanengine_swap_chain_->ExtentAspectRatio(); }
 		bool IsFrameInProgress() const { return is_frame_started_; }
 
 		VkCommandBuffer GetCurrentCommandBuffer() const {

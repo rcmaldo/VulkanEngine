@@ -147,6 +147,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\vulkanengine_camera.cpp" />
     <ClCompile Include="Engine\vulkanengine_device.cpp" />
     <ClCompile Include="Engine\vulkanengine_model.cpp" />
     <ClCompile Include="Engine\vulkanengine_pipeline.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\vulkanengine_camera.hpp" />
     <ClInclude Include="Engine\vulkanengine_device.hpp" />
     <ClInclude Include="Engine\vulkanengine_game_object.hpp" />
     <ClInclude Include="Engine\vulkanengine_model.hpp" />

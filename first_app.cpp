@@ -1,5 +1,6 @@
 #include "first_app.hpp"
 
+#include "Engine/vulkanengine_camera.hpp"
 #include "simple_render_system.hpp"
 
 // libs
@@ -25,14 +26,22 @@ namespace vulkanengine
 	void FirstApp::Run()
 	{
 		SimpleRenderSystem simple_render_system{ vulkanengine_device_, vulkanengine_renderer_.GetSwapChainRenderPass() };
+		VulkanEngineCamera camera{};
+		// camera.SetViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+		camera.SetViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+
 		while (!vulkanengine_window_.ShouldClose())
 		{
 			glfwPollEvents();
 
+			float aspect = vulkanengine_renderer_.GetAspectRatio();
+			// camera.SetOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, .1f, 10.f);
+
 			if (auto command_buffer = vulkanengine_renderer_.BeginFrame())
 			{
 				vulkanengine_renderer_.BeginSwapChainRenderPass(command_buffer);
-				simple_render_system.RenderGameObjects(command_buffer, game_objects_);
+				simple_render_system.RenderGameObjects(command_buffer, game_objects_, camera);
 				vulkanengine_renderer_.EndSwapChainRenderPass(command_buffer);
 				vulkanengine_renderer_.EndFrame();
 			}
@@ -108,7 +117,7 @@ namespace vulkanengine
 
 		auto cube = VulkanEngineGameObject::CreateGameObject();
 		cube.model_ = vulkanengine_model;
-		cube.transform_.translation = { 0.f, 0.f, .5f };
+		cube.transform_.translation = { 0.f, 0.f, 2.5f };
 		cube.transform_.scale = { .5f, .5f, .5f };
 		game_objects_.push_back(std::move(cube));
 	}

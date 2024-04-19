@@ -67,9 +67,11 @@ namespace vulkanengine
 			"shaders/simple_shader.frag.spv", pipeline_config);
 	}
 
-	void SimpleRenderSystem::RenderGameObjects(VkCommandBuffer command_buffer, std::vector<VulkanEngineGameObject>& game_objects)
+	void SimpleRenderSystem::RenderGameObjects(VkCommandBuffer command_buffer, std::vector<VulkanEngineGameObject>& game_objects, const VulkanEngineCamera& camera)
 	{
 		vulkanengine_pipeline_->Bind(command_buffer);
+
+		auto projection_view = camera.GetProjection() * camera.GetView();
 
 		for (auto& obj : game_objects)
 		{
@@ -78,7 +80,7 @@ namespace vulkanengine
 
 			SimplePushConstantData push{};
 			push.color = obj.color_;
-			push.transform = obj.transform_.mat4();
+			push.transform = projection_view * obj.transform_.mat4();
 
 
 			vkCmdPushConstants(
