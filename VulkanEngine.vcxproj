@@ -155,6 +155,7 @@
     <ClCompile Include="Engine\vulkanengine_swap_chain.cpp" />
     <ClCompile Include="Engine\vulkanengine_window.cpp" />
     <ClCompile Include="first_app.cpp" />
+    <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClInclude Include="Engine\vulkanengine_swap_chain.hpp" />
     <ClInclude Include="Engine\vulkanengine_window.hpp" />
     <ClInclude Include="first_app.hpp" />
+    <ClInclude Include="keyboard_movement_controller.hpp" />
     <ClInclude Include="simple_render_system.hpp" />
   </ItemGroup>
   <ItemGroup>

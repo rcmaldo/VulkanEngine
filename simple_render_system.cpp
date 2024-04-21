@@ -75,9 +75,6 @@ namespace vulkanengine
 
 		for (auto& obj : game_objects)
 		{
-			obj.transform_.rotation.y = glm::mod(obj.transform_.rotation.y + 0.0001f, glm::two_pi<float>());
-			obj.transform_.rotation.x = glm::mod(obj.transform_.rotation.x + 0.00005f, glm::two_pi<float>());
-
 			SimplePushConstantData push{};
 			push.color = obj.color_;
 			push.transform = projection_view * obj.transform_.mat4();

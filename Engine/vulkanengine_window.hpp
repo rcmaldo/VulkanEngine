@@ -21,6 +21,7 @@ namespace vulkanengine
 		VkExtent2D GetExtent() { return { static_cast<uint32_t>(width_), static_cast<uint32_t>(height_) }; }
 		bool WasWindowResized() { return frame_buffer_resized_; }
 		void ResetWindowResizedFlag() { frame_buffer_resized_ = false; }
+		GLFWwindow* GetGLFWwindow() const { return window_; }
 
 		void CreateWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 

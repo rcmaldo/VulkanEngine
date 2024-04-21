@@ -32,7 +32,7 @@ namespace vulkanengine
 
     void VulkanEngineCamera::SetViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
     {
-        assert(glm::length(direction) > 0.f && "Direction cannot be of length 0");
+        assert(glm::dot(direction, direction) > std::numeric_limits<float>::epsilon() && "Direction cannot be of length 0");
         const glm::vec3 w{glm::normalize(direction)};
         const glm::vec3 u{glm::normalize(glm::cross(w, up))};
         const glm::vec3 v{glm::cross(w, u)};
