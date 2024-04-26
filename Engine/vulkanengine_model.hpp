@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vulkanengine_buffer.hpp"
 #include "vulkanengine_device.hpp"
 
 // libs
@@ -63,13 +64,11 @@ namespace vulkanengine
 
 		VulkanEngineDevice& vulkanengine_device_;
 
-		VkBuffer vertex_buffer_;
-		VkDeviceMemory vertex_buffer_memory_;
+		std::unique_ptr<VulkanEngineBuffer> vertex_buffer_;
 		uint32_t vertex_count_;
 
 		bool has_index_buffer_ = false;
-		VkBuffer index_buffer_;
-		VkDeviceMemory index_buffer_memory_;
+		std::unique_ptr<VulkanEngineBuffer> index_buffer_;
 		uint32_t index_count_;
 	};
 } // namespace vulkanengine

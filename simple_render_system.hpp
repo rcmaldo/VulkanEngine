@@ -2,6 +2,7 @@
 
 #include "Engine/vulkanengine_camera.hpp"
 #include "Engine/vulkanengine_device.hpp"
+#include "Engine/vulkanengine_frame_info.hpp"
 #include "Engine/vulkanengine_game_object.hpp"
 #include "Engine/vulkanengine_pipeline.hpp"
 
@@ -20,7 +21,7 @@ namespace vulkanengine
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void RenderGameObjects(VkCommandBuffer command_buffer, std::vector<VulkanEngineGameObject>& game_objects, const VulkanEngineCamera& camera);
+		void RenderGameObjects(FrameInfo& frame_info, std::vector<VulkanEngineGameObject>& game_objects);
 
 	private:
 		void CreatePipelineLayout();

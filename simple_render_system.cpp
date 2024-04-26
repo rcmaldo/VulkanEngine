@@ -17,7 +17,7 @@ namespace vulkanengine
 	struct SimplePushConstantData
 	{
 		glm::mat4 transform{1.f};
-		alignas(16) glm::vec3 color;
+		glm::mat4 normal_matrix{1.f};
 	};
 
 	SimpleRenderSystem::SimpleRenderSystem(VulkanEngineDevice& device, VkRenderPass render_pass)
@@ -67,28 +67,28 @@ namespace vulkanengine
 			"Shaders/simple_shader.frag.spv", pipeline_config);
 	}
 
-	void SimpleRenderSystem::RenderGameObjects(VkCommandBuffer command_buffer, std::vector<VulkanEngineGameObject>& game_objects, const VulkanEngineCamera& camera)
+	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frame_info, std::vector<VulkanEngineGameObject>& game_objects)
 	{
-		vulkanengine_pipeline_->Bind(command_buffer);
+		vulkanengine_pipeline_->Bind(frame_info.command_buffer);
 
-		auto projection_view = camera.GetProjection() * camera.GetView();
+		auto projection_view = frame_info.camera.GetProjection() * frame_info.camera.GetView();
 
 		for (auto& obj : game_objects)
 		{
 			SimplePushConstantData push{};
-			push.color = obj.color_;
-			push.transform = projection_view * obj.transform_.mat4();
-
+			auto model_matrix = obj.transform_.Mat4();
+			push.transform = projection_view * model_matrix;
+			push.normal_matrix = obj.transform_.NormalMatrix();
 
 			vkCmdPushConstants(
-				command_buffer,
+				frame_info.command_buffer,
 				pipeline_layout_,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 				0,
 				sizeof(SimplePushConstantData),
 				&push);
-			obj.model_->Bind(command_buffer);
-			obj.model_->Draw(command_buffer);
+			obj.model_->Bind(frame_info.command_buffer);
+			obj.model_->Draw(frame_info.command_buffer);
 		}
 
 	}

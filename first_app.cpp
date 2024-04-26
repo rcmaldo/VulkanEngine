@@ -1,5 +1,6 @@
 #include "first_app.hpp"
 
+#include "Engine/vulkanengine_buffer.hpp"
 #include "Engine/vulkanengine_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "simple_render_system.hpp"
@@ -18,6 +19,13 @@
 
 namespace vulkanengine
 {
+	// Global Uniform Buffer Object
+	struct GlobalUbo
+	{
+		glm::mat4 projection_view{1.f};
+		glm::vec3 light_direction = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+	};
+
 	FirstApp::FirstApp()
 	{
 		LoadGameObjects();
@@ -27,6 +35,16 @@ namespace vulkanengine
 
 	void FirstApp::Run()
 	{
+		VulkanEngineBuffer global_ubo_buffer{
+			vulkanengine_device_,
+			sizeof(GlobalUbo),
+			VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT,
+			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+			vulkanengine_device_.properties_.limits.minUniformBufferOffsetAlignment
+		};
+		global_ubo_buffer.Map();
+
 		SimpleRenderSystem simple_render_system{ vulkanengine_device_, vulkanengine_renderer_.GetSwapChainRenderPass() };
 		VulkanEngineCamera camera{};
 
@@ -52,8 +70,23 @@ namespace vulkanengine
 
 			if (auto command_buffer = vulkanengine_renderer_.BeginFrame())
 			{
+				int frame_index = vulkanengine_renderer_.GetFrameIndex();
+				FrameInfo frame_info{
+					frame_index,
+					frame_time,
+					command_buffer,
+					camera
+				};
+
+				// update
+				GlobalUbo ubo{};
+				ubo.projection_view = camera.GetProjection() * camera.GetView();
+				global_ubo_buffer.WriteToIndex(&ubo, frame_index);
+				global_ubo_buffer.FlushIndex(frame_index);
+
+				// render
 				vulkanengine_renderer_.BeginSwapChainRenderPass(command_buffer);
-				simple_render_system.RenderGameObjects(command_buffer, game_objects_, camera);
+				simple_render_system.RenderGameObjects(frame_info, game_objects_);
 				vulkanengine_renderer_.EndSwapChainRenderPass(command_buffer);
 				vulkanengine_renderer_.EndFrame();
 			}
@@ -64,13 +97,19 @@ namespace vulkanengine
 	
 	void FirstApp::LoadGameObjects()
 	{
-		std::shared_ptr<VulkanEngineModel> vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/smooth_vase.obj");
+		std::shared_ptr<VulkanEngineModel> vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/flat_vase.obj");
+		auto flat_vase = VulkanEngineGameObject::CreateGameObject();
+		flat_vase.model_ = vulkanengine_model;
+		flat_vase.transform_.translation = { -.5f, .5f, 2.5f };
+		flat_vase.transform_.scale = { 3.f, 1.5f, 3.f };
+		game_objects_.push_back(std::move(flat_vase));
 
-		auto game_object = VulkanEngineGameObject::CreateGameObject();
-		game_object.model_ = vulkanengine_model;
-		game_object.transform_.translation = { 0.f, 0.f, 2.5f };
-		game_object.transform_.scale = glm::vec3(3.f);
-		game_objects_.push_back(std::move(game_object));
+		vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/smooth_vase.obj");
+		auto smooth_vase = VulkanEngineGameObject::CreateGameObject();
+		smooth_vase.model_ = vulkanengine_model;
+		smooth_vase.transform_.translation = { .5f, .5f, 2.5f };
+		smooth_vase.transform_.scale = { 3.f, 1.5f, 3.f };
+		game_objects_.push_back(std::move(smooth_vase));
 	}
 
 }  // namespace vulkanengine

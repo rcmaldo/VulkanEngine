@@ -35,17 +35,7 @@ namespace vulkanengine
 		CreateIndexBuffers(builder.indices);
 	}
 
-	VulkanEngineModel::~VulkanEngineModel()
-	{
-		vkDestroyBuffer(vulkanengine_device_.Device(), vertex_buffer_, nullptr);
-		vkFreeMemory(vulkanengine_device_.Device(), vertex_buffer_memory_, nullptr);
-
-		if (has_index_buffer_)
-		{
-			vkDestroyBuffer(vulkanengine_device_.Device(), index_buffer_, nullptr);
-			vkFreeMemory(vulkanengine_device_.Device(), index_buffer_memory_, nullptr);
-		}
-	}
+	VulkanEngineModel::~VulkanEngineModel() {}
 
 	std::unique_ptr<VulkanEngineModel> VulkanEngineModel::CreateModelFromFile(VulkanEngineDevice& device, const std::string& filepath)
 	{
@@ -58,37 +48,30 @@ namespace vulkanengine
 	void VulkanEngineModel::CreateVertexBuffers(const std::vector<Vertex>& vertices)
 	{
 		vertex_count_ = static_cast<uint32_t>(vertices.size());
-
 		assert(vertex_count_ >= 3 && "Vertex count must be at least 3");
-
 		VkDeviceSize buffer_size = sizeof(vertices[0]) * vertex_count_;
 
-		VkBuffer staging_buffer;
-		VkDeviceMemory staging_buffer_memory;
-
-		vulkanengine_device_.CreateBuffer(
-			buffer_size,
+		uint32_t vertex_size = sizeof(vertices[0]);
+		VulkanEngineBuffer staging_buffer{
+			vulkanengine_device_,
+			vertex_size,
+			vertex_count_,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			staging_buffer,
-			staging_buffer_memory);
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		};
 
-		void* data;
-		vkMapMemory(vulkanengine_device_.Device(), staging_buffer_memory, 0, buffer_size, 0, &data);
-		memcpy(data, vertices.data(), static_cast<size_t>(buffer_size));
-		vkUnmapMemory(vulkanengine_device_.Device(), staging_buffer_memory);
+		staging_buffer.Map();
+		staging_buffer.WriteToBuffer((void*)vertices.data());
 
-		vulkanengine_device_.CreateBuffer(
-			buffer_size,
+		vertex_buffer_ = std::make_unique<VulkanEngineBuffer>(
+			vulkanengine_device_,
+			vertex_size,
+			vertex_count_,
 			VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			vertex_buffer_,
-			vertex_buffer_memory_);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+		);
 
-		vulkanengine_device_.CopyBuffer(staging_buffer, vertex_buffer_, buffer_size);
-
-		vkDestroyBuffer(vulkanengine_device_.Device(), staging_buffer, nullptr);
-		vkFreeMemory(vulkanengine_device_.Device(), staging_buffer_memory, nullptr);
+		vulkanengine_device_.CopyBuffer(staging_buffer.GetBuffer(), vertex_buffer_->GetBuffer(), buffer_size);
 	}
 
 	void VulkanEngineModel::CreateIndexBuffers(const std::vector<uint32_t>& indices)
@@ -103,43 +86,38 @@ namespace vulkanengine
 
 		VkDeviceSize buffer_size = sizeof(indices[0]) * index_count_;
 
-		VkBuffer staging_buffer;
-		VkDeviceMemory staging_buffer_memory;
-
-		vulkanengine_device_.CreateBuffer(
-			buffer_size,
+		uint32_t index_size = sizeof(indices[0]);
+		VulkanEngineBuffer staging_buffer{
+			vulkanengine_device_,
+			index_size,
+			index_count_,
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			staging_buffer,
-			staging_buffer_memory);
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+		};
 
-		void* data;
-		vkMapMemory(vulkanengine_device_.Device(), staging_buffer_memory, 0, buffer_size, 0, &data);
-		memcpy(data, indices.data(), static_cast<size_t>(buffer_size));
-		vkUnmapMemory(vulkanengine_device_.Device(), staging_buffer_memory);
+		staging_buffer.Map();
+		staging_buffer.WriteToBuffer((void*)indices.data());
 
-		vulkanengine_device_.CreateBuffer(
-			buffer_size,
+		index_buffer_ = std::make_unique<VulkanEngineBuffer>(
+			vulkanengine_device_,
+			index_size,
+			index_count_,
 			VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-			index_buffer_,
-			index_buffer_memory_);
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+		);
 
-		vulkanengine_device_.CopyBuffer(staging_buffer, index_buffer_, buffer_size);
-
-		vkDestroyBuffer(vulkanengine_device_.Device(), staging_buffer, nullptr);
-		vkFreeMemory(vulkanengine_device_.Device(), staging_buffer_memory, nullptr);
+		vulkanengine_device_.CopyBuffer(staging_buffer.GetBuffer(), index_buffer_->GetBuffer(), buffer_size);
 	}
 
 	void VulkanEngineModel::Bind(VkCommandBuffer command_buffer)
 	{
-		VkBuffer buffers[] = { vertex_buffer_ };
+		VkBuffer buffers[] = { vertex_buffer_->GetBuffer() };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, offsets);
 
 		if (has_index_buffer_)
 		{
-			vkCmdBindIndexBuffer(command_buffer, index_buffer_, 0, VK_INDEX_TYPE_UINT32);
+			vkCmdBindIndexBuffer(command_buffer, index_buffer_->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		}
 	}
 
@@ -166,17 +144,12 @@ namespace vulkanengine
 
 	std::vector<VkVertexInputAttributeDescription> VulkanEngineModel::Vertex::GetAttributeDescriptions()
 	{
-		std::vector<VkVertexInputAttributeDescription> attribute_descriptions(2);
+		std::vector<VkVertexInputAttributeDescription> attribute_descriptions{};
 
-		attribute_descriptions[0].binding = 0;
-		attribute_descriptions[0].location = 0;
-		attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attribute_descriptions[0].offset = offsetof(Vertex, position);
-
-		attribute_descriptions[1].binding = 0;
-		attribute_descriptions[1].location = 1;
-		attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-		attribute_descriptions[1].offset = offsetof(Vertex, color);
+		attribute_descriptions.push_back({ 0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position) });
+		attribute_descriptions.push_back({ 1, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, color) });
+		attribute_descriptions.push_back({ 2, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, normal) });
+		attribute_descriptions.push_back({ 3, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(Vertex, uv) });
 
 		return attribute_descriptions;
 	}
@@ -211,19 +184,11 @@ namespace vulkanengine
 						attrib.vertices[3 * index.vertex_index + 2]
 					};
 
-					auto color_index = 3 * index.vertex_index + 2;
-					if (color_index < attrib.colors.size())
-					{
-						vertex.color = {
-							attrib.colors[color_index - 2],
-							attrib.colors[color_index - 1],
-							attrib.colors[color_index - 0]
-						};
-					}
-					else
-					{
-						vertex.color = { 1.f, 1.f, 1.f };
-					}
+					vertex.color = {
+						attrib.colors[3 * index.vertex_index + 0],
+						attrib.colors[3 * index.vertex_index + 1],
+						attrib.colors[3 * index.vertex_index + 2]
+					};
 				}
 
 				if (index.normal_index >= 0)
