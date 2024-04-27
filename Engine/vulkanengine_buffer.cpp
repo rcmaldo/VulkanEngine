@@ -15,7 +15,7 @@ namespace vulkanengine
 {
 
     /**
-     * Returns the minimum instance size required to be compatible with devices minOffsetAlignment
+     * Returns the minimum instance size required to be compatible with devices min_offset_alignment
      *
      * @param instance_size The size of an instance
      * @param min_offset_alignment The minimum required alignment, in bytes, for the offset member (eg
@@ -34,20 +34,20 @@ namespace vulkanengine
 
     VulkanEngineBuffer::VulkanEngineBuffer(
         VulkanEngineDevice& device,
-        VkDeviceSize instanceSize,
-        uint32_t instanceCount,
-        VkBufferUsageFlags usageFlags,
-        VkMemoryPropertyFlags memoryPropertyFlags,
-        VkDeviceSize minOffsetAlignment)
+        VkDeviceSize instance_size,
+        uint32_t instance_count,
+        VkBufferUsageFlags usage_flags,
+        VkMemoryPropertyFlags memory_property_flags,
+        VkDeviceSize min_offset_alignment)
         : vulkanengine_device_{ device },
-        instance_size_{ instanceSize },
-        instance_count_{ instanceCount },
-        usage_flags_{ usageFlags },
-        memory_property_flags_{ memoryPropertyFlags }
+        instance_size_{ instance_size },
+        instance_count_{ instance_count },
+        usage_flags_{ usage_flags },
+        memory_property_flags_{ memory_property_flags }
     {
-        alignment_size_ = GetAlignment(instanceSize, minOffsetAlignment);
-        buffer_size_ = alignment_size_ * instanceCount;
-        device.CreateBuffer(buffer_size_, usageFlags, memoryPropertyFlags, buffer_, memory_);
+        alignment_size_ = GetAlignment(instance_size, min_offset_alignment);
+        buffer_size_ = alignment_size_ * instance_count;
+        device.CreateBuffer(buffer_size_, usage_flags, memory_property_flags, buffer_, memory_);
     }
 
     VulkanEngineBuffer::~VulkanEngineBuffer()
@@ -171,7 +171,7 @@ namespace vulkanengine
     }
 
     /**
-     * Copies "instanceSize" bytes of data to the mapped buffer at an offset of index * alignmentSize
+     * Copies "instance_size" bytes of data to the mapped buffer at an offset of index * alignmentSize
      *
      * @param data Pointer to the data to copy
      * @param index Used in offset calculation

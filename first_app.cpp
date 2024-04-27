@@ -35,15 +35,18 @@ namespace vulkanengine
 
 	void FirstApp::Run()
 	{
-		VulkanEngineBuffer global_ubo_buffer{
-			vulkanengine_device_,
-			sizeof(GlobalUbo),
-			VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT,
-			VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			vulkanengine_device_.properties_.limits.minUniformBufferOffsetAlignment
-		};
-		global_ubo_buffer.Map();
+		std::vector<std::unique_ptr<VulkanEngineBuffer>> ubo_buffers(VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < ubo_buffers.size(); ++i)
+		{
+			ubo_buffers[i] = std::make_unique<VulkanEngineBuffer>(
+				vulkanengine_device_,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+			);
+			ubo_buffers[i]->Map();
+		}
 
 		SimpleRenderSystem simple_render_system{ vulkanengine_device_, vulkanengine_renderer_.GetSwapChainRenderPass() };
 		VulkanEngineCamera camera{};
@@ -81,8 +84,8 @@ namespace vulkanengine
 				// update
 				GlobalUbo ubo{};
 				ubo.projection_view = camera.GetProjection() * camera.GetView();
-				global_ubo_buffer.WriteToIndex(&ubo, frame_index);
-				global_ubo_buffer.FlushIndex(frame_index);
+				ubo_buffers[frame_index]->WriteToBuffer(&ubo);
+				ubo_buffers[frame_index]->Flush();
 
 				// render
 				vulkanengine_renderer_.BeginSwapChainRenderPass(command_buffer);
