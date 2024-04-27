@@ -28,6 +28,10 @@ namespace vulkanengine
 
 	FirstApp::FirstApp()
 	{
+		global_pool_ = VulkanEngineDescriptorPool::Builder(vulkanengine_device_)
+			.SetMaxSets(VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.AddPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.Build();
 		LoadGameObjects();
 	}
 
@@ -48,7 +52,23 @@ namespace vulkanengine
 			ubo_buffers[i]->Map();
 		}
 
-		SimpleRenderSystem simple_render_system{ vulkanengine_device_, vulkanengine_renderer_.GetSwapChainRenderPass() };
+		auto global_set_layout = VulkanEngineDescriptorSetLayout::Builder(vulkanengine_device_)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.Build();
+
+		std::vector<VkDescriptorSet> global_descriptor_sets(VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < global_descriptor_sets.size(); ++i)
+		{
+			auto buffer_info = ubo_buffers[i]->DescriptorInfo();
+			VulkanEngineDescriptorWriter(*global_set_layout, *global_pool_)
+				.WriteBuffer(0, &buffer_info)
+				.Build(global_descriptor_sets[i]);
+		}
+
+		SimpleRenderSystem simple_render_system{
+			vulkanengine_device_,
+			vulkanengine_renderer_.GetSwapChainRenderPass(),
+			global_set_layout->GetDescriptorSetLayout()};
 		VulkanEngineCamera camera{};
 
 		auto viewer_object = VulkanEngineGameObject::CreateGameObject();
@@ -78,7 +98,8 @@ namespace vulkanengine
 					frame_index,
 					frame_time,
 					command_buffer,
-					camera
+					camera,
+					global_descriptor_sets[frame_index]
 				};
 
 				// update

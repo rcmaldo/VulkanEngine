@@ -13,5 +13,6 @@ namespace vulkanengine
 		float frame_time;
 		VkCommandBuffer command_buffer;
 		VulkanEngineCamera& camera;
+		VkDescriptorSet global_descriptor_set;
 	};
 } // namespace vulkanengine

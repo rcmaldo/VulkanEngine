@@ -15,7 +15,7 @@ namespace vulkanengine
 	class SimpleRenderSystem
 	{
 	public:
-		SimpleRenderSystem(VulkanEngineDevice& device, VkRenderPass render_pass);
+		SimpleRenderSystem(VulkanEngineDevice& device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
 		~SimpleRenderSystem();
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -24,7 +24,7 @@ namespace vulkanengine
 		void RenderGameObjects(FrameInfo& frame_info, std::vector<VulkanEngineGameObject>& game_objects);
 
 	private:
-		void CreatePipelineLayout();
+		void CreatePipelineLayout(VkDescriptorSetLayout global_set_layout);
 		void CreatePipeline(VkRenderPass render_pass);
 
 		VulkanEngineDevice& vulkanengine_device_;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Engine/vulkanengine_descriptors.hpp"
 #include "Engine/vulkanengine_device.hpp"
 #include "Engine/vulkanengine_game_object.hpp"
 #include "Engine/vulkanengine_renderer.hpp"
@@ -32,6 +33,9 @@ namespace vulkanengine
 		VulkanEngineDevice vulkanengine_device_{ vulkanengine_window_ };
 		VulkanEngineRenderer vulkanengine_renderer_{ vulkanengine_window_, vulkanengine_device_ };
 
+		// note: descriptor pool needs to be declared AFTER the device,
+		// as we want the pool to be destroyed BEFORE the device upon shutdown
+		std::unique_ptr<VulkanEngineDescriptorPool> global_pool_{};
 		std::vector<VulkanEngineGameObject> game_objects_;
 	};
 }  // namespace vulkanengine
