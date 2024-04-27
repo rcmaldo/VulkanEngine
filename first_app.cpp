@@ -23,7 +23,9 @@ namespace vulkanengine
 	struct GlobalUbo
 	{
 		glm::mat4 projection_view{1.f};
-		glm::vec3 light_direction = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+		glm::vec4 ambient_light_color{1.f, 1.f, 1.f, .02f}; // w is light intensity
+		glm::vec3 light_position{-1.f};
+		alignas(16) glm::vec4 light_color{1.f}; // w is light intensity
 	};
 
 	FirstApp::FirstApp()
@@ -68,10 +70,11 @@ namespace vulkanengine
 		SimpleRenderSystem simple_render_system{
 			vulkanengine_device_,
 			vulkanengine_renderer_.GetSwapChainRenderPass(),
-			global_set_layout->GetDescriptorSetLayout()};
+			global_set_layout->GetDescriptorSetLayout() };
 		VulkanEngineCamera camera{};
 
 		auto viewer_object = VulkanEngineGameObject::CreateGameObject();
+		viewer_object.transform_.translation.z = -2.5f; // initial position
 		KeyboardMovementController camera_controller{};
 
 		auto current_time = std::chrono::high_resolution_clock::now();
@@ -89,7 +92,7 @@ namespace vulkanengine
 
 			float aspect = vulkanengine_renderer_.GetAspectRatio();
 			// camera.SetOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
-			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, .1f, 10.f);
+			camera.SetPerspectiveProjection(glm::radians(50.f), aspect, .1f, 100.f);
 
 			if (auto command_buffer = vulkanengine_renderer_.BeginFrame())
 			{
@@ -118,22 +121,29 @@ namespace vulkanengine
 
 		vkDeviceWaitIdle(vulkanengine_device_.Device());
 	}
-	
+
 	void FirstApp::LoadGameObjects()
 	{
 		std::shared_ptr<VulkanEngineModel> vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/flat_vase.obj");
 		auto flat_vase = VulkanEngineGameObject::CreateGameObject();
 		flat_vase.model_ = vulkanengine_model;
-		flat_vase.transform_.translation = { -.5f, .5f, 2.5f };
+		flat_vase.transform_.translation = { -.5f, .5f, 0.f };
 		flat_vase.transform_.scale = { 3.f, 1.5f, 3.f };
 		game_objects_.push_back(std::move(flat_vase));
 
 		vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/smooth_vase.obj");
 		auto smooth_vase = VulkanEngineGameObject::CreateGameObject();
 		smooth_vase.model_ = vulkanengine_model;
-		smooth_vase.transform_.translation = { .5f, .5f, 2.5f };
+		smooth_vase.transform_.translation = { .5f, .5f, 0.f };
 		smooth_vase.transform_.scale = { 3.f, 1.5f, 3.f };
 		game_objects_.push_back(std::move(smooth_vase));
+
+		vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/quad.obj");
+		auto floor = VulkanEngineGameObject::CreateGameObject();
+		floor.model_ = vulkanengine_model;
+		floor.transform_.translation = { 0.f, .5f, 0.f };
+		floor.transform_.scale = { 3.f, 1.5f, 3.f };
+		game_objects_.push_back(std::move(floor));
 	}
 
 }  // namespace vulkanengine
