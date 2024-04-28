@@ -69,7 +69,7 @@ namespace vulkanengine
 			"Shaders/simple_shader.frag.spv", pipeline_config);
 	}
 
-	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frame_info, std::vector<VulkanEngineGameObject>& game_objects)
+	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frame_info)
 	{
 		vulkanengine_pipeline_->Bind(frame_info.command_buffer);
 
@@ -83,8 +83,15 @@ namespace vulkanengine
 			0,
 			nullptr);
 
-		for (auto& obj : game_objects)
+		for (auto& kv : frame_info.game_objects)
 		{
+			auto& obj = kv.second;
+
+			if (obj.model_ == nullptr)
+			{
+				continue;
+			}
+
 			SimplePushConstantData push{};
 			push.model_matrix = obj.transform_.Mat4();
 			push.normal_matrix = obj.transform_.NormalMatrix();

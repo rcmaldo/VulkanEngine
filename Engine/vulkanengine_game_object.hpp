@@ -7,6 +7,7 @@
 
 // std
 #include <memory>
+#include <unordered_map>
 
 namespace vulkanengine
 {
@@ -24,6 +25,7 @@ namespace vulkanengine
 	{
 	public:
 		using id_t = unsigned int;
+		using Map = std::unordered_map<id_t, VulkanEngineGameObject>;
 
 		static VulkanEngineGameObject CreateGameObject()
 		{

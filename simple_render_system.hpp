@@ -21,7 +21,7 @@ namespace vulkanengine
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void RenderGameObjects(FrameInfo& frame_info, std::vector<VulkanEngineGameObject>& game_objects);
+		void RenderGameObjects(FrameInfo& frame_info);
 
 	private:
 		void CreatePipelineLayout(VkDescriptorSetLayout global_set_layout);

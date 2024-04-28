@@ -36,6 +36,6 @@ namespace vulkanengine
 		// note: descriptor pool needs to be declared AFTER the device,
 		// as we want the pool to be destroyed BEFORE the device upon shutdown
 		std::unique_ptr<VulkanEngineDescriptorPool> global_pool_{};
-		std::vector<VulkanEngineGameObject> game_objects_;
+		VulkanEngineGameObject::Map game_objects_;
 	};
 }  // namespace vulkanengine

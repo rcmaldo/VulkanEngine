@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vulkanengine_camera.hpp"
+#include "vulkanengine_game_object.hpp"
 
 // lib
 #include <vulkan/vulkan.h>
@@ -14,5 +15,6 @@ namespace vulkanengine
 		VkCommandBuffer command_buffer;
 		VulkanEngineCamera& camera;
 		VkDescriptorSet global_descriptor_set;
+		VulkanEngineGameObject::Map& game_objects;
 	};
 } // namespace vulkanengine

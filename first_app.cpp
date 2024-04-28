@@ -55,7 +55,7 @@ namespace vulkanengine
 		}
 
 		auto global_set_layout = VulkanEngineDescriptorSetLayout::Builder(vulkanengine_device_)
-			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.AddBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
 			.Build();
 
 		std::vector<VkDescriptorSet> global_descriptor_sets(VulkanEngineSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -102,7 +102,8 @@ namespace vulkanengine
 					frame_time,
 					command_buffer,
 					camera,
-					global_descriptor_sets[frame_index]
+					global_descriptor_sets[frame_index],
+					game_objects_
 				};
 
 				// update
@@ -113,7 +114,7 @@ namespace vulkanengine
 
 				// render
 				vulkanengine_renderer_.BeginSwapChainRenderPass(command_buffer);
-				simple_render_system.RenderGameObjects(frame_info, game_objects_);
+				simple_render_system.RenderGameObjects(frame_info);
 				vulkanengine_renderer_.EndSwapChainRenderPass(command_buffer);
 				vulkanengine_renderer_.EndFrame();
 			}
@@ -129,21 +130,21 @@ namespace vulkanengine
 		flat_vase.model_ = vulkanengine_model;
 		flat_vase.transform_.translation = { -.5f, .5f, 0.f };
 		flat_vase.transform_.scale = { 3.f, 1.5f, 3.f };
-		game_objects_.push_back(std::move(flat_vase));
+		game_objects_.emplace(flat_vase.GetId(), std::move(flat_vase));
 
 		vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/smooth_vase.obj");
 		auto smooth_vase = VulkanEngineGameObject::CreateGameObject();
 		smooth_vase.model_ = vulkanengine_model;
 		smooth_vase.transform_.translation = { .5f, .5f, 0.f };
 		smooth_vase.transform_.scale = { 3.f, 1.5f, 3.f };
-		game_objects_.push_back(std::move(smooth_vase));
+		game_objects_.emplace(smooth_vase.GetId(), std::move(smooth_vase));
 
 		vulkanengine_model = VulkanEngineModel::CreateModelFromFile(vulkanengine_device_, "Models/quad.obj");
 		auto floor = VulkanEngineGameObject::CreateGameObject();
 		floor.model_ = vulkanengine_model;
 		floor.transform_.translation = { 0.f, .5f, 0.f };
 		floor.transform_.scale = { 3.f, 1.5f, 3.f };
-		game_objects_.push_back(std::move(floor));
+		game_objects_.emplace(floor.GetId(), std::move(floor));
 	}
 
 }  // namespace vulkanengine
