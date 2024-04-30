@@ -65,8 +65,10 @@ namespace vulkanengine
 		pipeline_config.pipeline_layout = pipeline_layout_;
 
 		vulkanengine_pipeline_ = std::make_unique<VulkanEnginePipeline>(
-			vulkanengine_device_, "Shaders/simple_shader.vert.spv",
-			"Shaders/simple_shader.frag.spv", pipeline_config);
+			vulkanengine_device_,
+			"Shaders/simple_shader.vert.spv",
+			"Shaders/simple_shader.frag.spv",
+			pipeline_config);
 	}
 
 	void SimpleRenderSystem::RenderGameObjects(FrameInfo& frame_info)

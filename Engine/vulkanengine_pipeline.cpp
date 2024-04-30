@@ -101,6 +101,9 @@ namespace vulkanengine
 		config_info.dynamic_state_info.pDynamicStates = config_info.dynamic_state_enables.data();
 		config_info.dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(config_info.dynamic_state_enables.size());
 		config_info.dynamic_state_info.flags = 0;
+
+		config_info.binding_descriptions = VulkanEngineModel::Vertex::GetBindingDescriptions();
+		config_info.attribute_descriptions = VulkanEngineModel::Vertex::GetAttributeDescriptions();
 	}
 
 	std::vector<char> VulkanEnginePipeline::ReadFile(const std::string& filepath)
@@ -157,8 +160,8 @@ namespace vulkanengine
 		shader_stages[1].pNext = nullptr;
 		shader_stages[1].pSpecializationInfo = nullptr;
 
-		auto attribute_descriptions = VulkanEngineModel::Vertex::GetAttributeDescriptions();
-		auto binding_descriptions = VulkanEngineModel::Vertex::GetBindingDescriptions();
+		auto& attribute_descriptions = config_info.attribute_descriptions;
+		auto& binding_descriptions = config_info.binding_descriptions;
 		VkPipelineVertexInputStateCreateInfo vertex_input_info{};
 		vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions.size());

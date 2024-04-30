@@ -110,7 +110,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Dev\Libraries\tinyobjloader;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include\glm;C:\Dev\Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine;C:\Dev\Libraries\tinyobjloader;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include\glm;C:\Dev\Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -131,7 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Dev\Libraries\tinyobjloader;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include\glm;C:\Dev\Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Dev\Projects\CppProjects\VulkanEngine\VulkanEngine;C:\Dev\Libraries\tinyobjloader;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include;C:\Dev\SDKs\VulkanSDK\1.3.275.0\Include\glm;C:\Dev\Libraries\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -160,7 +160,8 @@
     <ClCompile Include="first_app.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="simple_render_system.cpp" />
+    <ClCompile Include="Systems\point_light_system.cpp" />
+    <ClCompile Include="Systems\simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\vulkanengine_buffer.hpp" />
@@ -177,10 +178,13 @@
     <ClInclude Include="Engine\vulkanengine_window.hpp" />
     <ClInclude Include="first_app.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
-    <ClInclude Include="simple_render_system.hpp" />
+    <ClInclude Include="Systems\point_light_system.hpp" />
+    <ClInclude Include="Systems\simple_render_system.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="compile.bat" />
+    <None Include="Shaders\point_light.frag" />
+    <None Include="Shaders\point_light.vert" />
     <None Include="shaders\simple_shader.frag" />
     <None Include="shaders\simple_shader.vert" />
   </ItemGroup>

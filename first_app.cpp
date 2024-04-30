@@ -3,7 +3,8 @@
 #include "Engine/vulkanengine_buffer.hpp"
 #include "Engine/vulkanengine_camera.hpp"
 #include "keyboard_movement_controller.hpp"
-#include "simple_render_system.hpp"
+#include "Systems/simple_render_system.hpp"
+#include "Systems/point_light_system.hpp"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -22,7 +23,8 @@ namespace vulkanengine
 	// Global Uniform Buffer Object
 	struct GlobalUbo
 	{
-		glm::mat4 projection_view{1.f};
+		glm::mat4 projection{1.f};
+		glm::mat4 view{1.f};
 		glm::vec4 ambient_light_color{1.f, 1.f, 1.f, .02f}; // w is light intensity
 		glm::vec3 light_position{-1.f};
 		alignas(16) glm::vec4 light_color{1.f}; // w is light intensity
@@ -71,6 +73,12 @@ namespace vulkanengine
 			vulkanengine_device_,
 			vulkanengine_renderer_.GetSwapChainRenderPass(),
 			global_set_layout->GetDescriptorSetLayout() };
+
+		PointLightSystem point_light_system{
+			vulkanengine_device_,
+			vulkanengine_renderer_.GetSwapChainRenderPass(),
+			global_set_layout->GetDescriptorSetLayout() };
+
 		VulkanEngineCamera camera{};
 
 		auto viewer_object = VulkanEngineGameObject::CreateGameObject();
@@ -108,13 +116,15 @@ namespace vulkanengine
 
 				// update
 				GlobalUbo ubo{};
-				ubo.projection_view = camera.GetProjection() * camera.GetView();
+				ubo.projection = camera.GetProjection();
+				ubo.view = camera.GetView();
 				ubo_buffers[frame_index]->WriteToBuffer(&ubo);
 				ubo_buffers[frame_index]->Flush();
 
 				// render
 				vulkanengine_renderer_.BeginSwapChainRenderPass(command_buffer);
 				simple_render_system.RenderGameObjects(frame_info);
+				point_light_system.Render(frame_info);
 				vulkanengine_renderer_.EndSwapChainRenderPass(command_buffer);
 				vulkanengine_renderer_.EndFrame();
 			}
