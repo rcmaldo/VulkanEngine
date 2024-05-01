@@ -20,16 +20,6 @@
 
 namespace vulkanengine
 {
-	// Global Uniform Buffer Object
-	struct GlobalUbo
-	{
-		glm::mat4 projection{1.f};
-		glm::mat4 view{1.f};
-		glm::vec4 ambient_light_color{1.f, 1.f, 1.f, .02f}; // w is light intensity
-		glm::vec3 light_position{-1.f};
-		alignas(16) glm::vec4 light_color{1.f}; // w is light intensity
-	};
-
 	FirstApp::FirstApp()
 	{
 		global_pool_ = VulkanEngineDescriptorPool::Builder(vulkanengine_device_)
@@ -118,6 +108,7 @@ namespace vulkanengine
 				GlobalUbo ubo{};
 				ubo.projection = camera.GetProjection();
 				ubo.view = camera.GetView();
+				point_light_system.Update(frame_info, ubo);
 				ubo_buffers[frame_index]->WriteToBuffer(&ubo);
 				ubo_buffers[frame_index]->Flush();
 
@@ -155,6 +146,27 @@ namespace vulkanengine
 		floor.transform_.translation = { 0.f, .5f, 0.f };
 		floor.transform_.scale = { 3.f, 1.5f, 3.f };
 		game_objects_.emplace(floor.GetId(), std::move(floor));
+
+		std::vector<glm::vec3> light_colors{
+			{1.f, .1f, .1f},
+			{ .1f, .1f, 1.f },
+			{ .1f, 1.f, .1f },
+			{ 1.f, 1.f, .1f },
+			{ .1f, 1.f, 1.f },
+			{ 1.f, 1.f, 1.f }
+		};
+
+		for(int i = 0; i < light_colors.size(); ++i)
+		{
+			auto point_light = VulkanEngineGameObject::CreatePointLight(0.2f);
+			point_light.color_ = light_colors[i];
+			auto rotate_light = glm::rotate(
+				glm::mat4(1.f),
+				(i * glm::two_pi<float>()) / light_colors.size(),
+				{ 0.f, -1.f, 0.f });
+			point_light.transform_.translation = glm::vec3(rotate_light * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+			game_objects_.emplace(point_light.GetId(), std::move(point_light));
+		}
 	}
 
 }  // namespace vulkanengine

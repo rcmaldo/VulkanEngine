@@ -13,6 +13,13 @@
 
 namespace vulkanengine
 {
+	struct PointLightPushConstants
+	{
+		glm::vec4 position{};
+		glm::vec4 color{};
+		float radius;
+	};
+
 	PointLightSystem::PointLightSystem(VulkanEngineDevice& device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
 		: vulkanengine_device_{ device }
 	{
@@ -27,10 +34,10 @@ namespace vulkanengine
 
 	void PointLightSystem::CreatePipelineLayout(VkDescriptorSetLayout global_set_layout)
 	{
-		//VkPushConstantRange push_constant_range{};
-		//push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-		//push_constant_range.offset = 0;
-		//push_constant_range.size = sizeof(SimplePushConstantData);
+		VkPushConstantRange push_constant_range{};
+		push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		push_constant_range.offset = 0;
+		push_constant_range.size = sizeof(PointLightPushConstants);
 
 		std::vector<VkDescriptorSetLayout> descriptor_set_layouts{global_set_layout};
 
@@ -38,8 +45,8 @@ namespace vulkanengine
 		pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipeline_layout_info.setLayoutCount = static_cast<uint32_t>(descriptor_set_layouts.size());
 		pipeline_layout_info.pSetLayouts = descriptor_set_layouts.data();
-		pipeline_layout_info.pushConstantRangeCount = 0;
-		pipeline_layout_info.pPushConstantRanges = nullptr;
+		pipeline_layout_info.pushConstantRangeCount = 1;
+		pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 		if (vkCreatePipelineLayout(vulkanengine_device_.Device(),
 			&pipeline_layout_info, nullptr,
 			&pipeline_layout_) != VK_SUCCESS)
@@ -66,6 +73,35 @@ namespace vulkanengine
 			pipeline_config);
 	}
 
+	void PointLightSystem::Update(FrameInfo& frame_info, GlobalUbo& ubo)
+	{
+		auto rotate_light = glm::rotate(
+			glm::mat4(1.f),
+			frame_info.frame_time,
+			{ 0.f, -1.f, 0.f });
+
+		int light_index = 0;
+		for (auto& kv : frame_info.game_objects)
+		{
+			auto& object = kv.second;
+			if (object.point_light_ == nullptr)
+			{
+				continue;
+			}
+
+			assert(light_index < MAX_LIGHTS && "Point lights exceed maximum specified");
+
+			// update light position
+			object.transform_.translation = glm::vec3(rotate_light * glm::vec4(object.transform_.translation, 1.0f));
+
+			// copy light to ubo
+			ubo.point_lights[light_index].position = glm::vec4(object.transform_.translation, 1.0f);
+			ubo.point_lights[light_index].color = glm::vec4(object.color_, object.point_light_->light_intensity);
+			light_index += 1;
+		}
+		ubo.num_lights = light_index;
+	}
+
 	void PointLightSystem::Render(FrameInfo& frame_info)
 	{
 		vulkanengine_pipeline_->Bind(frame_info.command_buffer);
@@ -80,7 +116,29 @@ namespace vulkanengine
 			0,
 			nullptr);
 
-		vkCmdDraw(frame_info.command_buffer, 6, 1, 0, 0);
+		for (auto& kv : frame_info.game_objects)
+		{
+			auto& object = kv.second;
+			if (object.point_light_ == nullptr)
+			{
+				continue;
+			}
+
+			PointLightPushConstants push{};
+			push.position = glm::vec4(object.transform_.translation, 1.f);
+			push.color = glm::vec4(object.color_, object.point_light_->light_intensity);
+			push.radius = object.transform_.scale.x;
+
+			vkCmdPushConstants(
+				frame_info.command_buffer,
+				pipeline_layout_,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(PointLightPushConstants),
+				&push);
+
+			vkCmdDraw(frame_info.command_buffer, 6, 1, 0, 0);
+		}
 	}
 
 }  // namespace vulkanengine

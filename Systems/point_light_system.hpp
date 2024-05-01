@@ -21,6 +21,7 @@ namespace vulkanengine
 		PointLightSystem(const PointLightSystem&) = delete;
 		PointLightSystem& operator=(const PointLightSystem&) = delete;
 
+		void Update(FrameInfo& frame_info, GlobalUbo& ubo);
 		void Render(FrameInfo& frame_info);
 
 	private:
