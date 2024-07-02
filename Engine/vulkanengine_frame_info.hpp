@@ -21,6 +21,7 @@ namespace vulkanengine
 	{
 		glm::mat4 projection{1.f};
 		glm::mat4 view{1.f};
+		glm::mat4 inverse_view{1.f};
 		glm::vec4 ambient_light_color{1.f, 1.f, 1.f, .02f}; // w is light intensity
 		PointLight point_lights[MAX_LIGHTS];
 		int num_lights;

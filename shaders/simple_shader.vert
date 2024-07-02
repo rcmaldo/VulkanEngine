@@ -18,6 +18,7 @@ struct PointLight
 layout(set = 0, binding = 0) uniform GlobalUbo {
 	mat4 projection_matrix;
 	mat4 view_matrix;
+	mat4 inverse_view_matrix;
 	vec4 ambient_light_color; // w is intensity
 	PointLight point_lights[10]; // value of vulkanengine_frame_info.hpp->MAX_LIGHTS
 	int num_lights;

@@ -108,6 +108,7 @@ namespace vulkanengine
 				GlobalUbo ubo{};
 				ubo.projection = camera.GetProjection();
 				ubo.view = camera.GetView();
+				ubo.inverse_view = camera.GetInverseView();
 				point_light_system.Update(frame_info, ubo);
 				ubo_buffers[frame_index]->WriteToBuffer(&ubo);
 				ubo_buffers[frame_index]->Flush();
