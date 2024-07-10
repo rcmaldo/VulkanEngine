@@ -20,6 +20,8 @@ namespace vulkanengine
 		const glm::mat4& GetProjection() const { return projection_matrix_; }
 		const glm::mat4& GetView() const { return view_matrix_; }
 		const glm::mat4& GetInverseView() const { return inverse_view_matrix_; }
+		const glm::vec3 GetPosition() const { return glm::vec3(inverse_view_matrix_[3]); };
+
 	private:
 		glm::mat4 projection_matrix_{ 1.f };
 		glm::mat4 view_matrix_{ 1.f };

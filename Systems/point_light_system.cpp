@@ -7,9 +7,10 @@
 #include <glm/gtc/constants.hpp>
 
 // std
-#include <stdexcept>
-#include <cassert>
 #include <array>
+#include <cassert>
+#include <map>
+#include <stdexcept>
 
 namespace vulkanengine
 {
@@ -61,6 +62,7 @@ namespace vulkanengine
 
 		PipelineConfigInfo pipeline_config{};
 		VulkanEnginePipeline::DefaultPipelineConfigInfo(pipeline_config);
+		VulkanEnginePipeline::EnableAlphaBlending(pipeline_config);
 		pipeline_config.attribute_descriptions.clear();
 		pipeline_config.binding_descriptions.clear();
 		pipeline_config.render_pass = render_pass;
@@ -104,6 +106,17 @@ namespace vulkanengine
 
 	void PointLightSystem::Render(FrameInfo& frame_info)
 	{
+		std::map<float, VulkanEngineGameObject::id_t> sorted_objects;
+		for (auto& kv : frame_info.game_objects)
+		{
+			auto& obj = kv.second;
+			if (obj.point_light_ == nullptr) continue;
+
+			auto offset = frame_info.camera.GetPosition() - obj.transform_.translation;
+			float distance_squared = glm::dot(offset, offset);
+			sorted_objects[distance_squared] = obj.GetId();
+		}
+
 		vulkanengine_pipeline_->Bind(frame_info.command_buffer);
 
 		vkCmdBindDescriptorSets(
@@ -116,13 +129,9 @@ namespace vulkanengine
 			0,
 			nullptr);
 
-		for (auto& kv : frame_info.game_objects)
+		for (auto it = sorted_objects.rbegin(); it != sorted_objects.rend(); ++it)
 		{
-			auto& object = kv.second;
-			if (object.point_light_ == nullptr)
-			{
-				continue;
-			}
+			auto& object = frame_info.game_objects.at(it->second);
 
 			PointLightPushConstants push{};
 			push.position = glm::vec4(object.transform_.translation, 1.f);
