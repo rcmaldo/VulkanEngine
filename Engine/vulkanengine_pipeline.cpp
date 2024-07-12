@@ -118,6 +118,9 @@ namespace vulkanengine
 		config_info.color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
 		config_info.color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
 		config_info.color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+		config_info.depth_stencil_info.depthTestEnable = VK_TRUE;
+		config_info.depth_stencil_info.depthWriteEnable = VK_FALSE;	// may want to remove this once we have order-independent transparency
 	}
 
 	std::vector<char> VulkanEnginePipeline::ReadFile(const std::string& filepath)
